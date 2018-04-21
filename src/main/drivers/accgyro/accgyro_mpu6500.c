@@ -37,12 +37,6 @@
 
 #if defined(USE_GYRO_MPU6500) || defined(USE_ACC_MPU6500)
 
-#define MPU6500_BIT_RESET                   (0x80)
-#define MPU6500_BIT_INT_ANYRD_2CLEAR        (1 << 4)
-#define MPU6500_BIT_BYPASS_EN               (1 << 0)
-#define MPU6500_BIT_I2C_IF_DIS              (1 << 4)
-#define MPU6500_BIT_RAW_RDY_EN              (0x01)
-
 static void mpu6500AccInit(accDev_t *acc)
 {
     acc->acc_1G = 512 * 8;

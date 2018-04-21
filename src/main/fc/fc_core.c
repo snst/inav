@@ -188,6 +188,7 @@ static void updateArmingStatus(void)
         }
 
 	/* CHECK: pitch / roll sticks centered when NAV_LAUNCH_MODE enabled */
+#ifdef USE_NAV
 	if (isNavLaunchEnabled()) {
 	  if (areSticksDeflectedMoreThanPosHoldDeadband()) {
 	    ENABLE_ARMING_FLAG(ARMING_DISABLED_ROLLPITCH_NOT_CENTERED);
@@ -195,7 +196,7 @@ static void updateArmingStatus(void)
 	    DISABLE_ARMING_FLAG(ARMING_DISABLED_ROLLPITCH_NOT_CENTERED);
 	  }
 	}
-
+#endif
         /* CHECK: Angle */
         if (!STATE(SMALL_ANGLE)) {
             ENABLE_ARMING_FLAG(ARMING_DISABLED_NOT_LEVEL);

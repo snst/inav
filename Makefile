@@ -16,7 +16,7 @@
 #
 
 # The target to build, see VALID_TARGETS below
-TARGET    ?= SPRACINGF3
+TARGET    ?= NAZE
 
 # Compile-time options
 OPTIONS   ?=
@@ -492,7 +492,8 @@ endif
 
 LD_SCRIPT       = $(LINKER_DIR)/stm32_flash_f103_$(FLASH_SIZE)k.ld
 ARCH_FLAGS      = -mthumb -mcpu=cortex-m3
-TARGET_FLAGS   := -D$(TARGET) -pedantic $(TARGET_FLAGS)
+#TARGET_FLAGS   := -D$(TARGET) -pedantic $(TARGET_FLAGS)
+TARGET_FLAGS   := -D$(TARGET) $(TARGET_FLAGS)
 
 ifeq ($(DEVICE_FLAGS),)
 DEVICE_FLAGS    = -DSTM32F10X_MD
