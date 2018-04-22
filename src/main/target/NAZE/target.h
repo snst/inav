@@ -86,7 +86,6 @@
 
 #define USE_MAG
 #define USE_MAG_HMC5883
-//#define USE_MAG_QMC5883
 #define MAG_HMC5883_ALIGN       CW180_DEG
 #define MAG_I2C_BUS             I2CDEV_2
 
@@ -117,25 +116,20 @@
 #define VBAT_ADC_CHANNEL                ADC_CHN_2
 #define RSSI_ADC_CHANNEL                ADC_CHN_3
 
-//#define NAV_AUTO_MAG_DECLINATION
-//#define NAV_GPS_GLITCH_DETECTION
+#define NAV_AUTO_MAG_DECLINATION
+#define NAV_GPS_GLITCH_DETECTION
 
-// #define USE_LED_STRIP
-// #define WS2811_PIN                      PA6
-// #define WS2811_DMA_TC_FLAG              DMA1_FLAG_TC6
-// #define WS2811_DMA_HANDLER_IDENTIFER    DMA1_CH6_HANDLER
-
-#undef USE_SERIALRX_SPEKTRUM
+#define USE_SERIALRX_SPEKTRUM
 #undef USE_SERIALRX_IBUS
 //#define USE_SPEKTRUM_BIND
 //#define BIND_PIN                PA3
 
 //#define USE_SERIAL_4WAY_BLHELI_INTERFACE
 
-#define TARGET_MOTOR_COUNT      6
+#define TARGET_MOTOR_COUNT      4
 
 #define DEFAULT_FEATURES        (FEATURE_VBAT)
-#define DEFAULT_RX_TYPE         RX_TYPE_PPM
+#define DEFAULT_RX_TYPE         RX_TYPE_SERIAL
 
 // Number of available PWM outputs
 #define MAX_PWM_OUTPUT_PORTS    10
@@ -147,3 +141,22 @@
 
 #define USABLE_TIMER_CHANNEL_COUNT 14
 #define USED_TIMERS             ( TIM_N(1) | TIM_N(2) | TIM_N(3) | TIM_N(4) )
+
+#define USE_ASYNC_GYRO_PROCESSING
+#define USE_DEBUG_TRACE
+#define USE_GYRO_NOTCH_1
+#define USE_GYRO_NOTCH_2
+#define USE_DTERM_NOTCH
+#define USE_ACC_NOTCH
+#define USE_GPS_PROTO_I2C_NAV
+#define NAV_AUTO_MAG_DECLINATION
+#define NAV_GPS_GLITCH_DETECTION
+
+
+
+#undef USE_BLACKBOX
+#undef USE_GPS_PROTO_UBLOX
+#undef USE_TELEMETRY
+#undef USE_TELEMETRY_LTM
+#undef USE_TELEMETRY_FRSKY
+#undef USE_FLM_TURN_ASSIST
