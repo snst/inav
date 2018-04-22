@@ -47,40 +47,20 @@
 #define NAZE_CS_GPIO_CLK_PERIPHERAL RCC_APB2Periph_GPIOB
 
 #define USE_UART1
-#define USE_UART2
-#define USE_SOFTSERIAL1
+//#define USE_UART2
+//#define USE_SOFTSERIAL1
 
-#ifdef AIRHERO32
-    // MWC PARIS Sirius AirHero32
-    #define USE_GYRO_SPI_MPU6500
-    #define USE_ACC_SPI_MPU6500
+#define USE_HARDWARE_REVISION_DETECTION
+//#define USE_SOFTSERIAL2
 
-    #define USE_UART3
-    #define UART3_RX_PIN            PB11
-    #define UART3_TX_PIN            PB10
+#define M25P16_CS_GPIO          NAZE_SPI_CS_GPIO
+#define M25P16_CS_PIN           NAZE_SPI_CS_PIN
+#define M25P16_SPI_BUS          NAZE_SPI_BUS
 
-    #define I2C_DEVICE_SHARES_UART3
+#define SERIAL_PORT_COUNT       1 //4       // UART1, UART2, SS1, SS2
 
-    #define SERIAL_PORT_COUNT       4       // UART1, UART2, UART3, SS1
-
-    #define MPU6500_CS_GPIO_CLK_PERIPHERAL  NAZE_CS_GPIO_CLK_PERIPHERAL
-    #define MPU6500_CS_GPIO                 NAZE_SPI_CS_GPIO
-    #define MPU6500_CS_PIN                  NAZE_SPI_CS_PIN
-    #define MPU6500_SPI_BUS                 NAZE_SPI_BUS
-#else
-    // Afroflight NAZE
-    #define USE_HARDWARE_REVISION_DETECTION
-    #define USE_SOFTSERIAL2
-
-    #define M25P16_CS_GPIO          NAZE_SPI_CS_GPIO
-    #define M25P16_CS_PIN           NAZE_SPI_CS_PIN
-    #define M25P16_SPI_BUS          NAZE_SPI_BUS
-
-    #define SERIAL_PORT_COUNT       4       // UART1, UART2, SS1, SS2
-
-    #define USE_FLASHFS
-    #define USE_FLASH_M25P16
-#endif
+#define USE_FLASHFS
+#define USE_FLASH_M25P16
 
 #define USE_I2C
 #define USE_I2C_DEVICE_2
@@ -96,15 +76,13 @@
 
 #define USE_ACC
 #define USE_ACC_MPU6050
-//#define USE_ACC_MPU6500
 
 #define ACC_MPU6050_ALIGN       CW0_DEG
 #define ACC_MPU6500_ALIGN       CW0_DEG
 
 #define USE_BARO
-#define USE_BARO_MS5611 // needed for Flip32 board
+#define USE_BARO_MS5611 
 #define MS5611_I2C_BUS          I2CDEV_2
-//#define USE_BARO_BMP280
 
 #define USE_MAG
 #define USE_MAG_HMC5883
@@ -130,45 +108,6 @@
 // #define SOFT_I2C_PB1011 // If SOFT_I2C is enabled above, need to define pinout as well (I2C1 = PB67, I2C2 = PB1011)
 // #define SOFT_I2C_PB67
 
-//#define USE_RX_NRF24
-#ifdef USE_RX_NRF24
-#define USE_RX_SPI
-
-#define USE_RX_CX10
-#define USE_RX_H8_3D
-#define USE_RX_INAV
-//#define USE_RX_SYMA
-//#define USE_RX_V202
-//#define NRF24_DEFAULT_PROTOCOL  NRF24RX_SYMA_X5C
-//#define NRF24_DEFAULT_PROTOCOL  NRF24RX_REF
-#define NRF24_DEFAULT_PROTOCOL  NRF24RX_H8_3D
-//#define NRF24_DEFAULT_PROTOCOL  NRF24RX_CX10A
-//#define NRF24_DEFAULT_PROTOCOL  NRF24RX_V202_1M
-
-//#define USE_SOFTSPI
-//#define USE_RX_SOFTSPI
-
-// RC pinouts
-// RC1              GND
-// RC2              power
-// RC3  PA0/TIM2    RX_PPM
-// RC4  PA1/TIM2    CE / RSSI_ADC
-// RC5  PA2/TIM2    USART2 TX
-// RC6  PA3/TIM2    USART2 RX
-// RC7  PA6/TIM3    CSN / softserial1 RX / LED_STRIP
-// RC8  PA7/TIM3    SCK / softserial1 TX
-// RC9  PB0/TIM3    MISO / softserial2 RX / HC-SR04 trigger
-// RC10 PB1/TIM3    MOSI /softserial2 TX / HC-SR04 echo / current
-
-// Nordic Semiconductor uses 'CSN', STM uses 'NSS'
-#define RX_CE_PIN                   PA1
-#define RX_CE_GPIO_CLK_PERIPHERAL   RCC_APB2Periph_GPIOA
-#define RX_NSS_PIN                  PA6
-#define RX_NSS_GPIO_CLK_PERIPHERAL  RCC_APB2Periph_GPIOA
-#define RX_SCK_PIN                  PA7
-#define RX_MOSI_PIN                 PB1
-#define RX_MISO_PIN                 PB0
-#endif // USE_NRF24
 
 #define USE_ADC
 #define ADC_CHANNEL_1_PIN               PB1
