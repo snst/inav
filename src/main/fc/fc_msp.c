@@ -2074,13 +2074,14 @@ static mspResult_e mspFcProcessInCommand(uint16_t cmdMSP, sbuf_t *src)
         batteryConfigMutable()->capacity.value = sbufReadU16(src);
         break;
 
+#ifdef USE_SERVOS
 #ifndef USE_QUAD_MIXER_ONLY
     case MSP_SET_MIXER:
         mixerConfigMutable()->mixerMode = sbufReadU8(src);
         mixerUpdateStateFlags();    // Required for correct preset functionality
         break;
 #endif
-
+#endif
     case MSP_SET_RX_CONFIG:
         sbufReadU8Safe(&rxConfigMutable()->serialrx_provider, src);
         sbufReadU16Safe(&rxConfigMutable()->maxcheck, src);
@@ -2126,7 +2127,7 @@ static mspResult_e mspFcProcessInCommand(uint16_t cmdMSP, sbuf_t *src)
         break;
 
     case MSP_SET_BF_CONFIG:
-#ifdef USE_QUAD_MIXER_ONLY
+#if defined(USE_QUAD_MIXER_ONLY) || !defined(USE_SERVOS)
         sbufReadU8(src); // mixerMode ignored
 #else
         mixerConfigMutable()->mixerMode = sbufReadU8(src); // mixerMode
