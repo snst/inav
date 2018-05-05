@@ -322,14 +322,14 @@ bool rangefinderProcess(float cosTiltAngle)
             }
 
         }
-
+/*
         DEBUG_SET(DEBUG_RANGEFINDER, 3, rangefinder.snr);
 
         DEBUG_SET(DEBUG_RANGEFINDER_QUALITY, 0, rangefinder.rawAltitude);
         DEBUG_SET(DEBUG_RANGEFINDER_QUALITY, 1, rangefinder.snrThresholdReached);
         DEBUG_SET(DEBUG_RANGEFINDER_QUALITY, 2, rangefinder.dynamicDistanceThreshold);
         DEBUG_SET(DEBUG_RANGEFINDER_QUALITY, 3, isSurfaceAltitudeValid());
-
+*/
     }
     else {
         // Bad configuration
@@ -347,10 +347,10 @@ bool rangefinderProcess(float cosTiltAngle)
     } else {
         rangefinder.calculatedAltitude = rangefinder.rawAltitude * cosTiltAngle;
     }
-
+/*
     DEBUG_SET(DEBUG_RANGEFINDER, 1, rangefinder.rawAltitude);
     DEBUG_SET(DEBUG_RANGEFINDER, 2, rangefinder.calculatedAltitude);
-
+*/
     return true;
 }
 

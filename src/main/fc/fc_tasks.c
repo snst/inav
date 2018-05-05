@@ -68,6 +68,7 @@
 
 #include "sensors/sensors.h"
 #include "sensors/acceleration.h"
+#include "sensors/temperature.h"
 #include "sensors/barometer.h"
 #include "sensors/battery.h"
 #include "sensors/compass.h"
@@ -111,6 +112,12 @@ void taskUpdateBattery(timeUs_t currentTimeUs)
     batMonitoringLastServiced = currentTimeUs;
 }
 
+void taskUpdateTemperature(timeUs_t currentTimeUs)
+{
+    UNUSED(currentTimeUs);
+    temperatureUpdate();
+}
+
 #ifdef USE_GPS
 void taskProcessGPS(timeUs_t currentTimeUs)
 {
@@ -147,8 +154,9 @@ void taskUpdateBaro(timeUs_t currentTimeUs)
             rescheduleTask(TASK_SELF, newDeadline);
         }
     }
-
+#ifdef USE_NAV
     updatePositionEstimator_BaroTopic(currentTimeUs);
+#endif    
 }
 #endif
 
@@ -181,7 +189,9 @@ void taskUpdateRangefinder(timeUs_t currentTimeUs)
      * Process raw rangefinder readout
      */
     if (rangefinderProcess(calculateCosTiltAngle())) {
+#ifdef USE_NAV        
         updatePositionEstimator_SurfaceTopic(currentTimeUs, rangefinderGetLatestAltitude());
+#endif
     }
 }
 #endif
@@ -307,6 +317,7 @@ void fcTasksInit(void)
     setTaskEnabled(TASK_LIGHTS, true);
 #endif
     setTaskEnabled(TASK_BATTERY, feature(FEATURE_VBAT) || feature(FEATURE_CURRENT_METER));
+    setTaskEnabled(TASK_TEMPERATURE, true);
     setTaskEnabled(TASK_RX, true);
 #ifdef USE_GPS
     setTaskEnabled(TASK_GPS, feature(FEATURE_GPS));
@@ -450,6 +461,13 @@ cfTask_t cfTasks[TASK_COUNT] = {
         .taskFunc = taskUpdateBattery,
         .desiredPeriod = TASK_PERIOD_HZ(50),      // 50 Hz
         .staticPriority = TASK_PRIORITY_MEDIUM,
+    },
+
+    [TASK_TEMPERATURE] = {
+        .taskName = "TEMPERATURE",
+        .taskFunc = taskUpdateTemperature,
+        .desiredPeriod = TASK_PERIOD_HZ(1),       // 1 Hz
+        .staticPriority = TASK_PRIORITY_LOW,
     },
 
     [TASK_RX] = {

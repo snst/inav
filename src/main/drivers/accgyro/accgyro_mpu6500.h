@@ -17,12 +17,5 @@
 
 #pragma once
 
-#define MPU6500_BIT_RESET                   (0x80)
-#define MPU6500_BIT_INT_ANYRD_2CLEAR        (1 << 4)
-#define MPU6500_BIT_BYPASS_EN               (1 << 0)
-#define MPU6500_BIT_I2C_IF_DIS              (1 << 4)
-#define MPU6500_BIT_RAW_RDY_EN              (0x01)
-
-
 bool mpu6500AccDetect(accDev_t *acc);
 bool mpu6500GyroDetect(gyroDev_t *gyro);

@@ -36,8 +36,9 @@
 #define HCSR04_I2C_DETECTION_CONE_DECIDEGREES 300
 #define HCSR04_I2C_DETECTION_CONE_EXTENDED_DECIDEGREES 450
 
-#define HCSR04_I2C_Address 0x14
+#define HCSR04_I2C_Address 0x20
 
+#define HCSR04_I2C_REQUEST 0xF0
 #define HCSR04_I2C_REGISTRY_STATUS 0x00
 #define HCSR04_I2C_REGISTRY_DISTANCE_HIGH 0x01
 #define HCSR04_I2C_REGISTRY_DISTANCE_LOW 0x02
@@ -54,7 +55,7 @@ void hcsr04i2cUpdate(rangefinderDev_t *rangefinder)
 {
     uint8_t response[3];
 
-    isHcsr04i2cResponding = busReadBuf(rangefinder->busDev, HCSR04_I2C_REGISTRY_STATUS, response, 3);
+    isHcsr04i2cResponding = busReadBuf(rangefinder->busDev, HCSR04_I2C_REQUEST, response, 3);
     
     if (!isHcsr04i2cResponding) {
         hcsr04i2cMeasurementCm = RANGEFINDER_HARDWARE_FAILURE;
@@ -90,7 +91,7 @@ static bool deviceDetect(busDevice_t * busDev)
         uint8_t inquiryResult;
         delay(150);
 
-        bool ack = busRead(busDev, HCSR04_I2C_REGISTRY_STATUS, &inquiryResult);
+        bool ack = busRead(busDev, HCSR04_I2C_REQUEST, &inquiryResult);
         if (ack) {
             return true;
         }

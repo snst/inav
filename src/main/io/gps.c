@@ -132,7 +132,7 @@ static gpsProviderDescriptor_t  gpsProviders[GPS_PROVIDER_COUNT] = {
 PG_REGISTER_WITH_RESET_TEMPLATE(gpsConfig_t, gpsConfig, PG_GPS_CONFIG, 0);
 
 PG_RESET_TEMPLATE(gpsConfig_t, gpsConfig,
-    .provider = GPS_UBLOX,
+    .provider = GPS_I2CNAV,
     .sbasMode = SBAS_NONE,
     .autoConfig = GPS_AUTOCONFIG_ON,
     .autoBaud = GPS_AUTOBAUD_ON,
@@ -157,11 +157,7 @@ static void gpsUpdateTime(void)
 static void gpsHandleProtocol(void)
 {
     bool newDataReceived = false;
-
-    // Call protocol-specific code
-    if (gpsProviders[gpsState.gpsConfig->provider].read) {
-        newDataReceived = gpsProviders[gpsState.gpsConfig->provider].read();
-    }
+    newDataReceived = gpsHandleI2CNAV();
 
     // Received new update for solution data
     if (newDataReceived) {
@@ -214,12 +210,23 @@ void gpsPreInit(void)
     gpsState.gpsConfig = gpsConfig();
 }
 
+gpsConfig_t myGpsConfig;
+
 void gpsInit(void)
 {
-    gpsState.serialConfig = serialConfig();
-    gpsState.gpsConfig = gpsConfig();
-    gpsState.baudrateIndex = 0;
 
+    myGpsConfig.provider = GPS_I2CNAV;
+    myGpsConfig.sbasMode = SBAS_NONE;
+    myGpsConfig.autoConfig = GPS_AUTOCONFIG_ON;
+    myGpsConfig.autoBaud = GPS_AUTOBAUD_ON;
+    myGpsConfig.dynModel = GPS_DYNMODEL_AIR_1G;
+    myGpsConfig.gpsMinSats = 6;
+    myGpsConfig.ubloxUseGalileo = false;
+
+
+    gpsState.serialConfig = serialConfig();
+    gpsState.gpsConfig = &myGpsConfig;
+    gpsState.baudrateIndex = 0;
     gpsStats.errors = 0;
     gpsStats.timeouts = 0;
 
@@ -230,39 +237,7 @@ void gpsInit(void)
     gpsState.lastMessageMs = millis();
     gpsSetState(GPS_UNKNOWN);
 
-    if (gpsProviders[gpsState.gpsConfig->provider].type == GPS_TYPE_BUS) {
-        gpsSetState(GPS_INITIALIZING);
-        return;
-    }
-
-    if (gpsProviders[gpsState.gpsConfig->provider].type == GPS_TYPE_SERIAL) {
-        serialPortConfig_t * gpsPortConfig = findSerialPortConfig(FUNCTION_GPS);
-        if (!gpsPortConfig) {
-            featureClear(FEATURE_GPS);
-        }
-        else {
-            while (gpsToSerialBaudRate[gpsState.baudrateIndex] != gpsPortConfig->gps_baudrateIndex) {
-                gpsState.baudrateIndex++;
-                if (gpsState.baudrateIndex >= GPS_BAUDRATE_COUNT) {
-                    gpsState.baudrateIndex = 0;
-                    break;
-                }
-            }
-
-            portMode_t mode = gpsProviders[gpsState.gpsConfig->provider].portMode;
-
-            // no callback - buffer will be consumed in gpsThread()
-            gpsState.gpsPort = openSerialPort(gpsPortConfig->identifier, FUNCTION_GPS, NULL, NULL, baudRates[gpsToSerialBaudRate[gpsState.baudrateIndex]], mode, SERIAL_NOT_INVERTED);
-
-            if (!gpsState.gpsPort) {
-                featureClear(FEATURE_GPS);
-            }
-            else {
-                gpsSetState(GPS_INITIALIZING);
-                return;
-            }
-        }
-    }
+    gpsSetState(GPS_INITIALIZING);
 }
 
 #ifdef USE_FAKE_GPS
@@ -308,15 +283,6 @@ static void gpsFakeGPSUpdate(void)
 // Finish baud rate change sequence - wait for TX buffer to empty and switch to the desired port speed
 void gpsFinalizeChangeBaud(void)
 {
-    if ((gpsProviders[gpsState.gpsConfig->provider].type == GPS_TYPE_SERIAL) && (gpsState.gpsPort != NULL)) {
-        // Wait for GPS_INIT_DELAY before switching to required baud rate
-        if ((millis() - gpsState.lastStateSwitchMs) >= GPS_BAUD_CHANGE_DELAY && isSerialTransmitBufferEmpty(gpsState.gpsPort)) {
-            // Switch to required serial port baud
-            serialSetBaudRate(gpsState.gpsPort, baudRates[gpsToSerialBaudRate[gpsState.baudrateIndex]]);
-            gpsState.lastMessageMs = millis();
-            gpsSetState(GPS_CHECK_VERSION);
-        }
-    }
 }
 
 uint16_t gpsConstrainEPE(uint32_t epe)
@@ -343,60 +309,8 @@ void gpsThread(void)
 #else
 
     // Serial-based GPS
-    if ((gpsProviders[gpsState.gpsConfig->provider].type == GPS_TYPE_SERIAL) && (gpsState.gpsPort != NULL)) {
-        switch (gpsState.state) {
-        default:
-        case GPS_INITIALIZING:
-            if ((millis() - gpsState.lastStateSwitchMs) >= GPS_INIT_DELAY) {
-                // Reset internals
-                DISABLE_STATE(GPS_FIX);
-                gpsSol.fixType = GPS_NO_FIX;
-
-                gpsState.hwVersion = 0;
-                gpsState.autoConfigStep = 0;
-                gpsState.autoConfigPosition = 0;
-                gpsState.autoBaudrateIndex = 0;
-
-                // Reset solution
-                gpsResetSolution();
-
-                // Call protocol handler - switch to next state is done there
-                gpsHandleProtocol();
-            }
-            break;
-
-        case GPS_CHANGE_BAUD:
-            // Call protocol handler - switch to next state is done there
-            gpsHandleProtocol();
-            break;
-
-        case GPS_CHECK_VERSION:
-        case GPS_CONFIGURE:
-        case GPS_RECEIVING_DATA:
-            gpsHandleProtocol();
-            if ((millis() - gpsState.lastMessageMs) > GPS_TIMEOUT) {
-                // Check for GPS timeout
-                sensorsClear(SENSOR_GPS);
-                DISABLE_STATE(GPS_FIX);
-                gpsSol.fixType = GPS_NO_FIX;
-
-                gpsSetState(GPS_LOST_COMMUNICATION);
-            }
-            break;
-
-        case GPS_LOST_COMMUNICATION:
-            gpsStats.timeouts++;
-            // Handle autobaud - switch to next port baud rate
-            if (gpsState.gpsConfig->autoBaud != GPS_AUTOBAUD_OFF) {
-                gpsState.baudrateIndex++;
-                gpsState.baudrateIndex %= GPS_BAUDRATE_COUNT;
-            }
-            gpsSetState(GPS_INITIALIZING);
-            break;
-        }
-    }
     // Driver-based GPS (I2C)
-    else if (gpsProviders[gpsState.gpsConfig->provider].type == GPS_TYPE_BUS) {
+    {
         switch (gpsState.state) {
         default:
         case GPS_INITIALIZING:
@@ -404,7 +318,7 @@ void gpsThread(void)
             if ((millis() - gpsState.lastStateSwitchMs) >= GPS_BUS_INIT_DELAY) {
                 gpsResetSolution();
 
-                if (gpsProviders[gpsState.gpsConfig->provider].detect && gpsProviders[gpsState.gpsConfig->provider].detect()) {
+                if (gpsDetectI2CNAV()) {
                     gpsState.hwVersion = 0;
                     gpsState.autoConfigStep = 0;
                     gpsState.autoConfigPosition = 0;
@@ -438,9 +352,6 @@ void gpsThread(void)
             gpsSetState(GPS_INITIALIZING);
             break;
         }
-    }
-    else {
-        // GPS_TYPE_NA
     }
 #endif
 }
@@ -499,13 +410,13 @@ bool gpsMagRead(magDev_t *magDev)
 
 bool gpsMagDetect(magDev_t *mag)
 {
-    if (!(feature(FEATURE_GPS) && gpsProviders[gpsState.gpsConfig->provider].hasCompass))
+    if (!(feature(FEATURE_GPS) && gpsProviders[2].hasCompass))
         return false;
 
-    if (gpsProviders[gpsState.gpsConfig->provider].type == GPS_TYPE_SERIAL && (!findSerialPortConfig(FUNCTION_GPS))) {
+    if (gpsProviders[2].type == GPS_TYPE_SERIAL) { // && (!findSerialPortConfig(FUNCTION_GPS))) {
         return false;
     }
-
+  
     mag->init = gpsMagInit;
     mag->read = gpsMagRead;
     return true;
