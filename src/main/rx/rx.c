@@ -478,7 +478,7 @@ void calculateRxChannelsAndUpdateFailsafe(timeUs_t currentTimeUs)
     }
 
     if (!rxDataProcessingRequired) {
-        return false;
+        return;
     }
 
     rxDataProcessingRequired = false;
@@ -490,7 +490,7 @@ void calculateRxChannelsAndUpdateFailsafe(timeUs_t currentTimeUs)
             skipRxSamples--;
         }
 
-        return true;
+        return;
     }
 
     rxFlightChannelsValid = true;

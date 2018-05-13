@@ -99,7 +99,9 @@ typedef struct fportControlData_s {
 
 typedef union fportData_s {
     fportControlData_t controlData;
+#ifdef USE_TELEMETRY_SMARTPORT    
     smartPortPayload_t telemetryData;
+#endif    
 } fportData_t;
 
 typedef struct fportFrame_s {
