@@ -1,0 +1,42 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "GDB",
+            "type": "gdb",
+            "request": "launch",
+            "cwd": "${workspaceRoot}",
+            "target": "${workspaceRoot}/obj/main/inav_NAZE.elf", 
+            "gdbpath" : "C:/work/copter2/gcc/bin/arm-none-eabi-gdb.exe",
+            "autorun": [
+                "target remote localhost:3333",
+                "symbol-file ./obj/main/inav_NAZE.elf",
+                "monitor reset" 
+                ]
+        },
+        {
+            "name": "debug BLUEJAYF4",
+            "type": "cppdbg",
+            "request": "launch",
+            "windows": {
+                "miDebuggerPath": "C:/work/copter2/gcc/bin/arm-none-eabi-gdb.exe"
+            },
+            "targetArchitecture": "arm",
+            "program": "${workspaceRoot}/obj/main/inav_NAZE.elf",
+            "setupCommands": [
+                { "text": "file C:/work/copter4/inav/obj/main/inav_NAZE.elf" },
+                { "text": "set remotetimeout 30" },
+                { "text": "target remote localhost:3333" },
+                { "text": "monitor halt" },
+                { "text": "monitor reset init" },
+                { "text": "load" },
+                { "text": "info target" }
+            ],
+            "externalConsole": false,
+            "cwd": "${workspaceRoot}"
+        }
+    ]
+}
