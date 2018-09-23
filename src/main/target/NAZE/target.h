@@ -47,7 +47,7 @@
 #define NAZE_CS_GPIO_CLK_PERIPHERAL RCC_APB2Periph_GPIOB
 
 #define USE_UART1
-//#define USE_UART2
+#define USE_UART2
 //#define USE_SOFTSERIAL1
 
 #define USE_HARDWARE_REVISION_DETECTION
@@ -57,7 +57,7 @@
 #define M25P16_CS_PIN           NAZE_SPI_CS_PIN
 #define M25P16_SPI_BUS          NAZE_SPI_BUS
 
-#define SERIAL_PORT_COUNT       1 //4       // UART1, UART2, SS1, SS2
+#define SERIAL_PORT_COUNT       2       // UART1, UART2, SS1, SS2
 
 #define USE_FLASHFS
 #define USE_FLASH_M25P16
@@ -89,9 +89,9 @@
 #define MAG_HMC5883_ALIGN       CW180_DEG
 #define MAG_I2C_BUS             I2CDEV_2
 
-//#define USE_RANGEFINDER
-//#define USE_RANGEFINDER_HCSR04_I2C
-//#define HCSR04_I2C_BUS          I2CDEV_2
+#define USE_RANGEFINDER
+#define USE_RANGEFINDER_HCSR04_I2C
+#define HCSR04_I2C_BUS          I2CDEV_2
 
 #define SOFTSERIAL_1_RX_PIN     PA6
 #define SOFTSERIAL_1_TX_PIN     PA7
@@ -112,8 +112,6 @@
 #define VBAT_ADC_CHANNEL                ADC_CHN_2
 #define RSSI_ADC_CHANNEL                ADC_CHN_3
 
-#define USE_SERIALRX_SPEKTRUM
-#undef USE_SERIALRX_IBUS
 //#define USE_SPEKTRUM_BIND
 //#define BIND_PIN                PA3
 
@@ -142,8 +140,18 @@
 #define USE_DTERM_NOTCH
 #define USE_ACC_NOTCH
 #define USE_GPS_PROTO_I2C_NAV
+#define GPS_I2C_INSTANCE I2CDEV_2
+
 #define NAV_AUTO_MAG_DECLINATION
 #define NAV_GPS_GLITCH_DETECTION
+
+#undef USE_RX_PWM
+#undef USE_RX_PPM
+#define USE_SERIAL_RX
+#define USE_SERIALRX_SPEKTRUM   // Cheap and fairly common protocol
+#undef USE_SERIALRX_SBUS       // Very common protocol
+#undef USE_SERIALRX_IBUS       // Cheap FlySky & Turnigy receivers
+#undef USE_SERIALRX_FPORT
 
 
 #undef USE_SERVOS

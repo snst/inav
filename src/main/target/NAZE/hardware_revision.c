@@ -47,6 +47,7 @@ void detectHardwareRevision(void)
 }
 
 #ifdef USE_SPI
+#if 0
 
 #define DISABLE_SPI_CS       IOHi(nazeSpiCsPin)
 #define ENABLE_SPI_CS        IOLo(nazeSpiCsPin)
@@ -95,15 +96,19 @@ uint8_t detectSpiDevice(void)
 }
 
 #endif
+#endif 
 
 void updateHardwareRevision(void)
 {
+    /*
 #ifdef USE_SPI
     uint8_t detectedSpiDevice = detectSpiDevice();
 
     if (detectedSpiDevice == SPI_DEVICE_MPU && hardwareRevision == NAZE32_REV5)
         hardwareRevision = NAZE32_SP;
 #endif
+*/
+hardwareRevision = NAZE32_SP;
 }
 
 const extiConfig_t *selectMPUIntExtiConfigByHardwareRevision(void)
